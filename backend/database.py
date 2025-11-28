@@ -85,16 +85,25 @@ async def _create_default_admin():
     admin_username = os.getenv("ADMIN_USERNAME", "admin")
     admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
     
-    admin = await database.users.find_one({"username": admin_username})
-    if not admin:
-        await database.users.insert_one({
-            "username": admin_username,
-            "password": get_password_hash(admin_password),
-            "role": "admin",
-            "must_change_password": False,
-            "created_at": datetime.utcnow()
-        })
-        print(f"✅ Default admin created (username: {admin_username}, password: {admin_password})")
+    try:
+        admin = await database.users.find_one({"username": admin_username})
+        if not admin:
+            await database.users.insert_one({
+                "username": admin_username,
+                "password": get_password_hash(admin_password),
+                "role": "admin",
+                "must_change_password": False,
+                "created_at": datetime.utcnow()
+            })
+            print(f"✅ Default admin created (username: {admin_username}, password: {admin_password})")
+        else:
+            print(f"ℹ️  Admin user '{admin_username}' already exists")
+    except Exception as e:
+        # Ignore duplicate key error (user already exists)
+        if "duplicate key" in str(e).lower() or "E11000" in str(e):
+            print(f"ℹ️  Admin user '{admin_username}' already exists")
+        else:
+            print(f"⚠️  Error creating admin user: {e}")
 
 
 # ==================== USER OPERATIONS ====================
