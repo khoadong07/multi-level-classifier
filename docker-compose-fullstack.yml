@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile.backend
     container_name: spx_backend
     ports:
-      - "8000"
+      - "8000:8000"
     volumes:
       - ./backend:/app/backend
       - ./app:/app/app
@@ -83,7 +83,7 @@ services:
     depends_on:
       - mongodb
       - backend
-    restart: unless-stopped
+    restart: unless-st
 
   frontend:
     build:
