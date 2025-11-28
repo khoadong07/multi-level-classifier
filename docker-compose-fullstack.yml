@@ -1,0 +1,96 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: spx_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: spx_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./app:/app/app
+      - ./prompt_template.txt:/app/prompt_template.txt
+      - cache_data:/app/cache
+      - upload_data:/app/uploads
+      - output_data:/app/outputs
+    environment:
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MODEL=${MODEL}
+      - MAX_WORKERS=${MAX_WORKERS:-10}
+      - MAX_RETRY=${MAX_RETRY:-3}
+      - RETRY_WAIT=${RETRY_WAIT:-0.5}
+      - TEMPERATURE=${TEMPERATURE:-0}
+      - MAX_TOKENS=${MAX_TOKENS:-150}
+      - MONGODB_URL=mongodb://mongodb:27017
+      - DATABASE_NAME=spx_classification
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: spx_worker
+    command: python3 backend/queue_worker.py
+    volumes:
+      - ./backend:/app/backend
+      - ./app:/app/app
+      - ./prompt_template.txt:/app/prompt_template.txt
+      - cache_data:/app/cache
+      - upload_data:/app/uploads
+      - output_data:/app/outputs
+    environment:
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MODEL=${MODEL}
+      - MAX_WORKERS=${MAX_WORKERS:-10}
+      - MAX_RETRY=${MAX_RETRY:-3}
+      - RETRY_WAIT=${RETRY_WAIT:-0.5}
+      - TEMPERATURE=${TEMPERATURE:-0}
+      - MAX_TOKENS=${MAX_TOKENS:-150}
+      - MONGODB_URL=mongodb://mongodb:27017
+      - DATABASE_NAME=spx_classification
+    depends_on:
+      - mongodb
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: spx_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  cache_data:
+  upload_data:
+  output_data:

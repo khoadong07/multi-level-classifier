@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  spx_classification_app:
+    build: .
+    container_name: spx_classification
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./:/app
+      - ./classification_cache.json:/app/classification_cache.json
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
