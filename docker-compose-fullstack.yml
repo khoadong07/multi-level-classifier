@@ -2,8 +2,6 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: spx_mongodb
-    ports:
-      - "27017"
     volumes:
       - mongodb_data:/data/db
     restart: unless-stopped
