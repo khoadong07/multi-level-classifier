@@ -3,7 +3,7 @@ services:
     image: mongo:7.0
     container_name: spx_mongodb
     ports:
-      - "27017:27017"
+      - "27017"
     volumes:
       - mongodb_data:/data/db
     restart: unless-stopped
@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile.backend
     container_name: spx_backend
     ports:
-      - "8000:8000"
+      - "8000"
     volumes:
       - ./backend:/app/backend
       - ./app:/app/app
@@ -82,7 +82,7 @@ services:
       dockerfile: Dockerfile
     container_name: spx_frontend
     ports:
-      - "3000:3000"
+      - "3008:3000"
     depends_on:
       - backend
     environment:
