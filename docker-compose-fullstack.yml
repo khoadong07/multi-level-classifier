@@ -44,6 +44,7 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
       - MONGODB_URL=${MONGODB_URL}
       - DATABASE_NAME=${DATABASE_NAME:-spx_classification}
+      - CORS_ORIGINS=${CORS_ORIGINS}
     depends_on:
       - mongodb
     restart: unless-stopped
@@ -89,13 +90,15 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     container_name: spx_frontend
     ports:
       - "3008:3000"
     depends_on:
       - backend
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     restart: unless-stopped
 
 volumes:
