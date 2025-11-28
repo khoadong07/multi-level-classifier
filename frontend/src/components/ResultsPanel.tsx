@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { Download, CheckCircle, TrendingUp } from 'lucide-react'
 import axios from 'axios'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
 interface ResultsPanelProps {
   jobId: string
 }
@@ -15,7 +17,7 @@ export default function ResultsPanel({ jobId }: ResultsPanelProps) {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/status/${jobId}`)
+        const response = await axios.get(`${API_URL}/api/status/${jobId}`)
         setStatus(response.data)
       } catch (err) {
         console.error('Failed to fetch status:', err)
@@ -28,7 +30,7 @@ export default function ResultsPanel({ jobId }: ResultsPanelProps) {
     setDownloading(true)
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/download/${jobId}`,
+        `${API_URL}/api/download/${jobId}`,
         { responseType: 'blob' }
       )
       

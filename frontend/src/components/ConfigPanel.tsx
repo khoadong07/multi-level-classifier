@@ -4,6 +4,8 @@ import { Server, Cpu, Database, Trash2 } from 'lucide-react'
 import axios from 'axios'
 import { useState } from 'react'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
 interface ConfigPanelProps {
   config: any
   onConfigUpdate: (config: any) => void
@@ -17,8 +19,8 @@ export default function ConfigPanel({ config, onConfigUpdate }: ConfigPanelProps
     
     setClearing(true)
     try {
-      await axios.delete('http://localhost:8000/api/cache')
-      const response = await axios.get('http://localhost:8000/api/config')
+      await axios.delete(`${API_URL}/api/cache`)
+      const response = await axios.get(`${API_URL}/api/config`)
       onConfigUpdate(response.data)
       alert('Đã xóa cache thành công!')
     } catch (err) {
