@@ -81,16 +81,20 @@ async def _create_default_admin():
     """Create default admin user if not exists"""
     from backend.auth import get_password_hash
     
-    admin = await database.users.find_one({"username": "admin"})
+    # Get admin credentials from environment
+    admin_username = os.getenv("ADMIN_USERNAME", "admin")
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+    
+    admin = await database.users.find_one({"username": admin_username})
     if not admin:
         await database.users.insert_one({
-            "username": "admin",
-            "password": get_password_hash("admin123"),
+            "username": admin_username,
+            "password": get_password_hash(admin_password),
             "role": "admin",
             "must_change_password": False,
             "created_at": datetime.utcnow()
         })
-        print("✅ Default admin created (username: admin, password: admin123)")
+        print(f"✅ Default admin created (username: {admin_username}, password: {admin_password})")
 
 
 # ==================== USER OPERATIONS ====================

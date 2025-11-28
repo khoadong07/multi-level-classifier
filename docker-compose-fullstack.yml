@@ -2,11 +2,16 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: spx_mongodb
+    ports:
+      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-spx_secure_password_2024}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "${MONGODB_USERNAME:-admin}", "-p", "${MONGODB_PASSWORD:-spx_secure_password_2024}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -34,8 +39,11 @@ services:
       - RETRY_WAIT=${RETRY_WAIT:-0.5}
       - TEMPERATURE=${TEMPERATURE:-0}
       - MAX_TOKENS=${MAX_TOKENS:-150}
-      - MONGODB_URL=mongodb://mongodb:27017
-      - DATABASE_NAME=spx_classification
+      - SECRET_KEY=${SECRET_KEY}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - MONGODB_URL=${MONGODB_URL}
+      - DATABASE_NAME=${DATABASE_NAME:-spx_classification}
     depends_on:
       - mongodb
     restart: unless-stopped
@@ -67,8 +75,11 @@ services:
       - RETRY_WAIT=${RETRY_WAIT:-0.5}
       - TEMPERATURE=${TEMPERATURE:-0}
       - MAX_TOKENS=${MAX_TOKENS:-150}
-      - MONGODB_URL=mongodb://mongodb:27017
-      - DATABASE_NAME=spx_classification
+      - SECRET_KEY=${SECRET_KEY}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - MONGODB_URL=${MONGODB_URL}
+      - DATABASE_NAME=${DATABASE_NAME:-spx_classification}
     depends_on:
       - mongodb
       - backend
