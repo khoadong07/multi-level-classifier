@@ -83,7 +83,7 @@ services:
     depends_on:
       - mongodb
       - backend
-    restart: unless-st
+    restart: unless-stopped
 
   frontend:
     build:
